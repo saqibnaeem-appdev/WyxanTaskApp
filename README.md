@@ -1,6 +1,22 @@
 # 🚴 WyxanTaskApp — Cyclist Route Tracker
 
-A React Native application for tracking cyclists through a series of defined checkpoints with geofenced areas. Built with TypeScript, Zustand, and react-native-maps.
+A complete React Native application designed specifically to fulfill the **Cyclist Tracking - Technical Test** requirements. It robustly tracks a cyclist's location and strictly enforces a sequential progression through a series of defined geofenced checkpoints. Built with TypeScript, Zustand, and react-native-maps.
+
+### ✨ Key Features Implemented (Meeting Requirements)
+- **Strict Sequential Routing**: Generates and enforces a continuous path (`SP → CP1 → CP2 → CP1 → ... → EP`).
+- **Consecutive Hits Rule**: Prevents hitting the same checkpoint twice in a row by sorting the cycle sequence correctly.
+- **Start/End Geofence Verification**: The run cannot start unless the user is physically inside the "Start Point" polygon.
+- **Auto-Complete Checkpoints**: Automatically registers CP hits via the dynamic turf.js geofencing engine without manual intervention.
+- **Dynamic UX/UI Pathing**: Live green pathing on the map, numbered markers, and a horizontal "Sequence Progress" bar let the user instantly understand their multi-hit circular route.
+- **DevTeleporter**: Specifically built to demonstrate edge cases (out of bounds, out of order, and simulate traversal).
+
+---
+
+## 🔗 Links
+
+- **APK Download**: [Download Final APK](https://drive.google.com/file/d/1VkESxbFoUsa_LceLmC9QGChdRYmNe3ug/view?usp=sharing)
+- **Demo Video**: [Watch App Demo](https://drive.google.com/file/d/139oZ3CZ_-nM7XoLcKvoLQYTzF045xAQ0/view?usp=sharing)
+- **GitHub Repository**: [saqibnaeem-appdev/WyxanTaskApp](https://github.com/saqibnaeem-appdev/WyxanTaskApp.git)
 
 ---
 
@@ -26,7 +42,7 @@ A React Native application for tracking cyclists through a series of defined che
 
 ```bash
 # 1. Clone the repository
-git clone <YOUR_NEW_REPO_URL>
+git clone https://github.com/saqibnaeem-appdev/WyxanTaskApp.git
 cd WyxanTaskApp
 
 # 2. Install dependencies
@@ -36,20 +52,7 @@ npm install
 cd ios && bundle exec pod install && cd ..
 ```
 
-### Google Maps API Key (Android)
 
-The app uses `react-native-maps`. On **iOS**, it defaults to Apple Maps (no key required). On **Android**, you need a Google Maps API key:
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Enable **Maps SDK for Android**
-3. Create an API key
-4. Replace the placeholder in `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<meta-data
-  android:name="com.google.android.geo.API_KEY"
-  android:value="YOUR_ACTUAL_KEY_HERE" />
-```
 
 ### Running the App
 
@@ -130,15 +133,18 @@ This gives deterministic, cross-platform polygon intersection logic and is easil
 ### Map Visualization
 
 - **Polygons**: Green fill for active target, gray for future, translucent for completed
+- **Numbered Sequence Markers**: Each node has a number and pulsing ring when active
 - **Polyline (background)**: Dashed line showing the full route path via polygon centroids
-- **Polyline (leading)**: Solid green line from user's current position to the active target
+- **Polyline (completed)**: Solid green line tracking the user's path through completed checkpoints
+- **Polyline (leading)**: Solid green line connecting the user's current position to the active target
+- **Sequence Progress Bar**: A horizontal scrollable widget tracking progression (`SP → CP1 → ... → EP`)
 - **Custom marker**: Cyclist emoji marker with a glowing border
 
 ### DevTeleporter (Testing Tool)
 
 A developer tool accessible via the bug icon on the tracking screen. It allows:
 - Toggling between real GPS and simulated positions
-- Teleporting to any checkpoint's centroid
+- Teleporting to any checkpoint's centroid (showing visual completion checkmarks)
 - Jumping to an "outside bounds" location for testing error flows
 
 ---
@@ -207,7 +213,7 @@ If I had an extra week, here's what I would implement:
 | react-native-geolocation-service | GPS location streaming |
 | @turf/boolean-point-in-polygon | Geofencing — point-in-polygon checks |
 | @turf/helpers | GeoJSON helpers |
-| lucide-react-native | Icon library |
+| react-native-vector-icons | Icon library (Ionicons) |
 | toastify-react-native | Toast notifications |
 | react-native-safe-area-context | Safe area insets |
 | react-navigation | Screen navigation |
