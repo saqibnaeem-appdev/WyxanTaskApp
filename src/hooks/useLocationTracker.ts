@@ -26,33 +26,36 @@ export const useLocationTracker = () => {
       // Get initial position first
       Geolocation.getCurrentPosition(
         position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
           setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude: lat,
+            longitude: lng,
           });
         },
         error => {
           console.warn('Error getting initial location', error);
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 },
       );
 
-      // Start watching stream
       watchId = Geolocation.watchPosition(
         position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
           setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude: lat,
+            longitude: lng,
           });
         },
         error => {
           console.error(error);
         },
         {
-          enableHighAccuracy: true,
-          distanceFilter: 1, // update every 1 meter
-          interval: 1000, // update every 1000ms
-          fastestInterval: 500,
+          enableHighAccuracy: false, // Must be false for some Fake GPS apps on Android to work
+          distanceFilter: 0,
+          interval: 500,
+          fastestInterval: 200,
         },
       );
     };

@@ -1,5 +1,12 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, ViewStyle, TouchableOpacityProps, View } from 'react-native';
+import {
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+  TouchableOpacityProps,
+  View,
+  StyleProp,
+} from 'react-native';
 import { AppText } from './AppText';
 import { colors } from '@theme/colors';
 import { getWidth, getHeight } from '@theme/responsive';
@@ -21,13 +28,13 @@ export const AppButton: React.FC<AppButtonProps> = ({
   const isPrimary = variant === 'primary';
   const isDanger = variant === 'danger';
 
-  const containerStyle: ViewStyle[] = [
+  const containerStyle: StyleProp<ViewStyle> = [
     styles.container,
     isPrimary && styles.primary,
     variant === 'secondary' && styles.secondary,
     isDanger && styles.danger,
     disabled && styles.disabled,
-    style as ViewStyle,
+    style,
   ];
 
   return (
@@ -39,8 +46,8 @@ export const AppButton: React.FC<AppButtonProps> = ({
     >
       <View style={styles.content}>
         {icon && <View style={styles.iconContainer}>{icon}</View>}
-        <AppText 
-          variant="button" 
+        <AppText
+          variant="button"
           color={isPrimary || isDanger ? 'black' : 'textMain'}
         >
           {title}

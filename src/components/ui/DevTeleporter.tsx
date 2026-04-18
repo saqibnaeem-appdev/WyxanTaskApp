@@ -13,6 +13,8 @@ const DevTeleporter = () => {
   const isSimulationMode = useRunStore(s => s.isSimulationMode);
   const setSimulationMode = useRunStore(s => s.setSimulationMode);
   const setLocation = useRunStore(s => s.setLocation);
+  const activeSequenceIndex = useRunStore(s => s.activeSequenceIndex);
+  const sequence = useRunStore(s => s.sequence);
 
   const toggleSimulation = () => {
     setSimulationMode(!isSimulationMode);
@@ -20,10 +22,10 @@ const DevTeleporter = () => {
 
   const handleTeleport = (checkpointId: string) => {
     if (!isSimulationMode) setSimulationMode(true);
-    
-    if (checkpointId === 'SP') {
+
+    if (checkpointId === 'sp-1') {
       setLocation(getPolygonCentroid(MOCK_ROUTE.startPoint.polygon));
-    } else if (checkpointId === 'EP') {
+    } else if (checkpointId === 'ep-1') {
       setLocation(getPolygonCentroid(MOCK_ROUTE.endPoint.polygon));
     } else {
       const cp = MOCK_ROUTE.checkpoints.find(c => c.id === checkpointId);
@@ -37,19 +39,60 @@ const DevTeleporter = () => {
   const jumpOutsideZone = () => {
     if (!isSimulationMode) setSimulationMode(true);
     setLocation({
-      latitude: 51.5200, // Safe distance away from the Base coordinates
-      longitude: -0.1500
+      latitude: 51.52, // Safe distance away from the Base coordinates
+      longitude: -0.15,
     });
     setIsOpen(false);
   };
 
+  const getStatusIcon = (nodeId: string) => {
+    const activeNode = sequence[activeSequenceIndex];
+    if (activeNode && activeNode.node.id === nodeId) {
+      return (
+        <Ionicons
+          name="radio-button-on"
+          color={Colors.primary}
+          size={20}
+          style={{ marginRight: 10 }}
+        />
+      );
+    }
+
+    const hasRemaining = sequence
+      .slice(activeSequenceIndex)
+      .some(seq => seq.node.id === nodeId);
+    if (!hasRemaining) {
+      return (
+        <Ionicons
+          name="checkmark-circle"
+          color={Colors.primary}
+          size={20}
+          style={{ marginRight: 10 }}
+        />
+      );
+    }
+
+    return (
+      <Ionicons
+        name="ellipse-outline"
+        color={Colors.textMuted}
+        size={20}
+        style={{ marginRight: 10 }}
+      />
+    );
+  };
+
   return (
     <>
-      <TouchableOpacity 
-        style={[styles.fab, isSimulationMode && styles.fabActive]} 
+      <TouchableOpacity
+        style={[styles.fab, isSimulationMode && styles.fabActive]}
         onPress={() => setIsOpen(true)}
       >
-        <Ionicons name="bug" color={isSimulationMode ? Colors.black : Colors.primary} size={24} />
+        <Ionicons
+          name="bug"
+          color={isSimulationMode ? Colors.black : Colors.primary}
+          size={24}
+        />
       </TouchableOpacity>
 
       <Modal visible={isOpen} transparent={true} animationType="fade">
@@ -62,34 +105,74 @@ const DevTeleporter = () => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.simToggle} onPress={toggleSimulation}>
-              <AppText color="primary" style={styles.simToggleText}>
-                Simulation Mode: {isSimulationMode ? 'ON (Override GPS)' : 'OFF (Live GPS)'}
+            <TouchableOpacity
+              style={styles.simToggle}
+              onPress={toggleSimulation}
+            >
+              <AppText color="primary" variant="button">
+                Simulation Mode:{' '}
+                {isSimulationMode ? 'ON (Override GPS)' : 'OFF (Live GPS)'}
               </AppText>
             </TouchableOpacity>
 
-            <AppText color="textMuted" style={styles.sectionHeader}>Locations</AppText>
-            
-            <TouchableOpacity style={styles.locationBtn} onPress={() => handleTeleport('SP')}>
-              <AppText style={styles.locationText}>1. Start Point (Base)</AppText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.locationBtn} onPress={() => handleTeleport('cp-1')}>
-              <AppText style={styles.locationText}>2. Checkpoint 1 (Front Gate)</AppText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.locationBtn} onPress={() => handleTeleport('cp-2')}>
-              <AppText style={styles.locationText}>3. Checkpoint 2 (Loading Bay)</AppText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.locationBtn} onPress={() => handleTeleport('EP')}>
-              <AppText style={styles.locationText}>4. End Point (Base)</AppText>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={[styles.locationBtn, styles.locationBtnRed]} onPress={jumpOutsideZone}>
-              <AppText color="danger" style={styles.locationTextRed}>Jump Outside Bounds</AppText>
+            <AppText
+              color="textMuted"
+              variant="activeTab"
+              style={styles.sectionHeader}
+            >
+              Locations
+            </AppText>
+
+            <TouchableOpacity
+              style={styles.locationBtn}
+              onPress={() => handleTeleport('sp-1')}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {getStatusIcon('sp-1')}
+                <AppText variant="body1">1. Start Point (Base)</AppText>
+              </View>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.locationBtn}
+              onPress={() => handleTeleport('cp-1')}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {getStatusIcon('cp-1')}
+                <AppText variant="body1">2. Checkpoint 1 (Front Gate)</AppText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.locationBtn}
+              onPress={() => handleTeleport('cp-2')}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {getStatusIcon('cp-2')}
+                <AppText variant="body1">
+                  3. Checkpoint 2 (Loading Bay)
+                </AppText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.locationBtn}
+              onPress={() => handleTeleport('ep-1')}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                {getStatusIcon('ep-1')}
+                <AppText variant="body1">4. End Point (Base)</AppText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.locationBtn, styles.locationBtnRed]}
+              onPress={jumpOutsideZone}
+            >
+              <AppText color="danger" variant="button" align="center">
+                Jump Outside Bounds
+              </AppText>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -115,12 +198,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.blackOverlay,
     justifyContent: 'center',
-    padding: 20,
+    padding: getWidth(20),
   },
   modalContent: {
     backgroundColor: Colors.background,
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: getHeight(24),
+    padding: getWidth(24),
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -128,44 +211,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: getHeight(20),
   },
   simToggle: {
     backgroundColor: '#333',
-    padding: 12,
-    borderRadius: 12,
+    padding: getWidth(12),
+    borderRadius: getHeight(12),
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  simToggleText: {
-    fontWeight: '700',
+    marginBottom: getHeight(20),
   },
   sectionHeader: {
-    marginBottom: 10,
+    marginBottom: getHeight(10),
     textTransform: 'uppercase',
     letterSpacing: 1,
-    fontSize: 12,
   },
   locationBtn: {
-    paddingVertical: 14,
+    paddingVertical: getHeight(14),
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   locationBtnRed: {
-    marginTop: 10,
+    marginTop: getHeight(10),
     borderBottomWidth: 0,
     backgroundColor: Colors.dangerSurface,
-    borderRadius: 12,
+    borderRadius: getHeight(12),
   },
-  locationText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  locationTextRed: {
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  }
 });
 
 export default DevTeleporter;

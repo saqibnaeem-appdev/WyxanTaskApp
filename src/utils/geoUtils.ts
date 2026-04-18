@@ -7,12 +7,13 @@ import { Coordinate } from '@mocks/routeData';
  * @param location Current user coordinate
  * @param polygonData Array of coordinates defining the polygon bounds
  */
-export const isUserInPolygon = (location: Coordinate, polygonData: Coordinate[]): boolean => {
+export const isUserInPolygon = (
+  location: Coordinate,
+  polygonData: Coordinate[],
+): boolean => {
   if (!polygonData || polygonData.length < 3) return false;
 
-  // Turf expects polygon coordinates to have matching start and end points
-  // so we duplicate the first point at the end to close the linear ring
-  const ring = polygonData.map((coord) => [coord.longitude, coord.latitude]);
+  const ring = polygonData.map(coord => [coord.longitude, coord.latitude]);
   if (
     ring[0][0] !== ring[ring.length - 1][0] ||
     ring[0][1] !== ring[ring.length - 1][1]
@@ -36,14 +37,14 @@ export const isUserInPolygon = (location: Coordinate, polygonData: Coordinate[])
 export const getPolygonCentroid = (polygonData: Coordinate[]): Coordinate => {
   const lats = polygonData.map(p => p.latitude);
   const lngs = polygonData.map(p => p.longitude);
-  
+
   const minLat = Math.min(...lats);
   const maxLat = Math.max(...lats);
   const minLng = Math.min(...lngs);
   const maxLng = Math.max(...lngs);
-  
+
   return {
     latitude: (minLat + maxLat) / 2,
-    longitude: (minLng + maxLng) / 2
+    longitude: (minLng + maxLng) / 2,
   };
 };

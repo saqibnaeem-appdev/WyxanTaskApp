@@ -1,6 +1,16 @@
 import React, { FC, ReactNode } from 'react';
-import { View, StatusBar, StyleSheet, ScrollView, ViewStyle, StatusBarStyle } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  View,
+  StatusBar,
+  StyleSheet,
+  ScrollView,
+  ViewStyle,
+  StatusBarStyle,
+} from 'react-native';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { Colors } from '@theme/colors';
 
 interface CustomContainerProps {
@@ -18,31 +28,35 @@ export const CustomContainer: FC<CustomContainerProps> = ({
   barStyle = 'light-content',
   scroll = false,
   style,
-  headerTransparent = false
+  headerTransparent = false,
 }) => {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.wrapper, { backgroundColor }]}>
-      {/* Dynamic Status Bar spacer to absorb Notch/Dynamic Island accurately */}
-      {!headerTransparent && <View style={{ height: insets.top, backgroundColor, zIndex: 1 }} />}
-      
-      <StatusBar translucent backgroundColor="transparent" barStyle={barStyle} />
-      
-      {/* Wrapping remaining screen bounds */}
+      {!headerTransparent && (
+        <View style={{ height: insets.top, backgroundColor, zIndex: 1 }} />
+      )}
+
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={barStyle}
+      />
+
       <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.flex}>
-          {scroll ? (
-            <ScrollView
-              style={[styles.flex, style]}
-              contentContainerStyle={styles.contentContainer}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-            >
-              {children}
-            </ScrollView>
-          ) : (
-            <View style={[styles.flex, style]}>{children}</View>
-          )}
+        {scroll ? (
+          <ScrollView
+            style={[styles.flex, style]}
+            contentContainerStyle={styles.contentContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[styles.flex, style]}>{children}</View>
+        )}
       </SafeAreaView>
     </View>
   );
@@ -57,5 +71,5 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-  }
+  },
 });

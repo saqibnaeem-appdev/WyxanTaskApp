@@ -6,7 +6,7 @@ export type RunState = 'IDLE' | 'ACTIVE' | 'COMPLETED';
 export interface SequenceNode {
   node: RouteNode;
   nodeType: 'SP' | 'CP' | 'EP';
-  targetHitIndex: number; // e.g., 1 for first hit, 2 for second hit
+  targetHitIndex: number;
 }
 
 interface RunStoreState {
@@ -15,10 +15,8 @@ interface RunStoreState {
   sequence: SequenceNode[];
   activeSequenceIndex: number;
 
-  // Simulation Features
   isSimulationMode: boolean;
 
-  // Actions
   setLocation: (loc: Coordinate) => void;
   setSimulationMode: (active: boolean) => void;
   startRun: () => void;
@@ -27,16 +25,11 @@ interface RunStoreState {
   resetRun: () => void;
 }
 
-// Function to generate the strict linear sequence of checkpoints from the config
 const generateSequence = (): SequenceNode[] => {
   const seq: SequenceNode[] = [];
 
-  // 1. Start Point
   seq.push({ node: MOCK_ROUTE.startPoint, nodeType: 'SP', targetHitIndex: 1 });
 
-  // 2. We need to cycle through CPs based on their hit counts.
-  // We assume CPs are executed in the order of their 'order' property for EACH cycle.
-  // Find max hits required among all CPs.
   const sortedCPs = [...MOCK_ROUTE.checkpoints].sort(
     (a, b) => a.order - b.order,
   );
@@ -50,7 +43,6 @@ const generateSequence = (): SequenceNode[] => {
     }
   }
 
-  // 3. End Point
   seq.push({ node: MOCK_ROUTE.endPoint, nodeType: 'EP', targetHitIndex: 1 });
 
   return seq;
@@ -94,7 +86,6 @@ export const useRunStore = create<RunStoreState>((set, get) => ({
   },
 }));
 
-// Helper selector to get the exact currently active node
 export const useActiveTargetNode = () => {
   const currentSequenceIndex = useRunStore(s => s.activeSequenceIndex);
   const sequence = useRunStore(s => s.sequence);

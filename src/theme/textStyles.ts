@@ -48,13 +48,11 @@ export const textStyles: ThemeTypography = StyleSheet.create({
   activeTab: {
     fontFamily: fonts.roboto.roboto700,
     fontSize: getFontSize(10),
-    lineHeight: getLineHeight(10, 100),
     color: colors.activeTab,
   },
   inActiveTab: {
     fontFamily: fonts.roboto.roboto400,
     fontSize: getFontSize(10),
-    lineHeight: getLineHeight(10, 100),
     color: colors.inActiveTab,
   },
 });

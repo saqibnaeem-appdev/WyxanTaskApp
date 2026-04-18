@@ -12,14 +12,15 @@ export const requestLocationPermission = async (): Promise<boolean> => {
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
         title: 'Location Permission',
-        message: 'This app requires access to your location to track your cycling route.',
+        message:
+          'This app requires access to your location to track your cycling route.',
         buttonNeutral: 'Ask Me Later',
         buttonNegative: 'Cancel',
         buttonPositive: 'OK',
-      }
+      },
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;
   }
-  
+
   return false;
 };

@@ -16,6 +16,7 @@ import TrackingScreen from './src/screens/TrackingScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import { Colors } from './src/theme/colors';
 import ToastManager from 'toastify-react-native';
+import { toastConfig } from './src/config/toastConfig';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -61,6 +62,7 @@ function App(): React.JSX.Element {
         position="top"
         animationStyle="zoomInOut"
         useModal={false}
+        config={toastConfig}
       />
     </SafeAreaProvider>
   );

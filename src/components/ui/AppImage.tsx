@@ -1,9 +1,10 @@
 import React from 'react';
 import { Image, ImageProps, StyleSheet, ViewStyle, StyleProp } from 'react-native';
+import { getWidth } from '@theme/responsive';
 
 interface AppImageProps extends Omit<ImageProps, 'style'> {
   containerStyle?: StyleProp<ViewStyle>;
-  imageStyle?: StyleProp<any>; // using any to bypass strict ImageStyle matching for dynamic sizing
+  imageStyle?: StyleProp<any>;
   variant?: 'icon' | 'logo' | 'full';
 }
 
@@ -27,13 +28,13 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: getWidth(24),
+    height: getWidth(24),
   },
   logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: getWidth(80),
+    height: getWidth(80),
+    borderRadius: getWidth(20),
   },
   full: {
     width: '100%',
