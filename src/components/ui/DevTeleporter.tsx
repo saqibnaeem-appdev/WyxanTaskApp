@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Modal } from 'react-native';
-import { Bug, X } from 'lucide-react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useRunStore } from '@store/useRunStore';
 import { MOCK_ROUTE } from '@mocks/routeData';
 import { getPolygonCentroid } from '@utils/geoUtils';
@@ -49,7 +49,7 @@ const DevTeleporter = () => {
         style={[styles.fab, isSimulationMode && styles.fabActive]} 
         onPress={() => setIsOpen(true)}
       >
-        <Bug color={isSimulationMode ? Colors.black : Colors.primary} size={24} />
+        <Ionicons name="bug" color={isSimulationMode ? Colors.black : Colors.primary} size={24} />
       </TouchableOpacity>
 
       <Modal visible={isOpen} transparent={true} animationType="fade">
@@ -58,7 +58,7 @@ const DevTeleporter = () => {
             <View style={styles.modalHeader}>
               <AppText variant="h2">Dev Teleporter</AppText>
               <TouchableOpacity onPress={() => setIsOpen(false)}>
-                <X color={Colors.danger} size={24} />
+                <Ionicons name="close" color={Colors.danger} size={24} />
               </TouchableOpacity>
             </View>
 

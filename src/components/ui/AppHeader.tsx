@@ -1,6 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 import { View, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
-import { ArrowLeft } from 'lucide-react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { getWidth, getHeight, getFontSize } from '@theme/responsive';
 import { Colors } from '@theme/colors';
@@ -38,7 +38,7 @@ export const AppHeader: FC<AppHeaderProps> = ({
       <View style={styles.sideNode}>
         {showBackButton && !leftNode ? (
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <ArrowLeft color={Colors.textMain} size={getFontSize(24)} />
+            <Ionicons name="arrow-back" color={Colors.textMain} size={getFontSize(24)} />
           </TouchableOpacity>
         ) : (
           leftNode

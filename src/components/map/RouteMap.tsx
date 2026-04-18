@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, View, Text, LayoutChangeEvent } from 'react-native';
+import MapView, { Marker, Polygon, Polyline, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useRunStore } from '@store/useRunStore';
 import { getPolygonCentroid } from '@utils/geoUtils';
 import { Colors } from '@theme/colors';
@@ -10,6 +10,15 @@ const RouteMap = () => {
   const sequence = useRunStore(s => s.sequence);
   const activeSequenceIndex = useRunStore(s => s.activeSequenceIndex);
   const runState = useRunStore(s => s.runState);
+
+  // Guard against zero-size rendering which crashes CAMetalLayer on iOS simulators
+  const [isLayoutReady, setIsLayoutReady] = useState(false);
+  const onLayout = useCallback((e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width > 0 && height > 0) {
+      setIsLayoutReady(true);
+    }
+  }, []);
 
   // We want to show the full route path dynamically
   const routeCentroids = sequence.map(seq =>
@@ -26,8 +35,10 @@ const RouteMap = () => {
   const activeTargetCentroid = routeCentroids[activeSequenceIndex];
 
   return (
-    <View style={StyleSheet.absoluteFill}>
+    <View style={StyleSheet.absoluteFill} onLayout={onLayout}>
+      {isLayoutReady ? (
       <MapView
+        provider={PROVIDER_DEFAULT}
         style={StyleSheet.absoluteFill}
         initialRegion={
           currentLocation
@@ -104,6 +115,7 @@ const RouteMap = () => {
           </Marker>
         )}
       </MapView>
+      ) : null}
     </View>
   );
 };

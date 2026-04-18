@@ -3,7 +3,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { useRunStore } from '@store/useRunStore';
 import { requestLocationPermission } from '@utils/permissions';
 import { isUserInPolygon } from '@utils/geoUtils';
-import { Vibration } from 'react-native';
+import { Vibration, Platform } from 'react-native';
 import { Toast } from 'toastify-react-native';
 
 export const useLocationTracker = () => {
@@ -88,9 +88,14 @@ export const useGeofencingEngine = () => {
         activeTarget.node.polygon,
       );
       if (isInZone) {
-        Vibration.vibrate(400); // Quick haptic feedback
+        try {
+          Vibration.vibrate(Platform.OS === 'ios' ? 0 : 400);
+        } catch (e) {
+          // Vibration may not be supported on simulator
+        }
         Toast.success(`Hit Checkpoint: ${activeTarget.node.name}`);
-        advanceCheckpoint();
+        // Defer advanceCheckpoint to next tick to avoid state update during render
+        setTimeout(() => advanceCheckpoint(), 0);
       }
     }
   }, [

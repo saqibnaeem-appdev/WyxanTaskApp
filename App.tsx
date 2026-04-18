@@ -60,6 +60,7 @@ function App(): React.JSX.Element {
         width={350} 
         position="top"
         animationStyle="zoomInOut"
+        useModal={false}
       />
     </SafeAreaProvider>
   );

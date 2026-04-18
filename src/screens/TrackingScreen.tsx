@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Toast } from 'toastify-react-native';
-import { Play, Check, AlertTriangle, RefreshCcw, MapPin, Bike, Navigation } from 'lucide-react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import RouteMap from '@components/map/RouteMap';
 import DevTeleporter from '@components/ui/DevTeleporter';
@@ -48,19 +48,23 @@ const TrackingScreen = () => {
   }, [runState, currentLocation, activeNode]);
 
   const handleStartAttempt = () => {
-    if (canStart) {
-      startRun();
-      Toast.success('Mission Started! Follow the route.');
-    } else {
-      setModalType('START');
-      setModalVisible(true);
+    try {
+      if (canStart) {
+        startRun();
+        setTimeout(() => Toast.success('Mission Started! Follow the route.'), 100);
+      } else {
+        setModalType('START');
+        setModalVisible(true);
+      }
+    } catch (error) {
+      console.error('handleStartAttempt crashed:', error);
     }
   };
 
   const handleEndAttempt = () => {
     if (canEnd) {
       endRun();
-      Toast.success('Mission Completed Successfully!');
+      setTimeout(() => Toast.success('Mission Completed Successfully!'), 100);
     } else {
       setModalType('END');
       setModalVisible(true);
@@ -73,7 +77,7 @@ const TrackingScreen = () => {
         <AppCard style={styles.bottomCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Check color={Colors.surfaceHighlight} size={28} />
+              <Ionicons name="checkmark" color={Colors.surfaceHighlight} size={28} />
             </View>
             <View style={styles.textStack}>
                <AppText variant="h2" color="primary">Run Completed! 🎉</AppText>
@@ -83,10 +87,10 @@ const TrackingScreen = () => {
           <AppButton 
             title="Start New Run" 
             variant="primary" 
-            icon={<RefreshCcw color={Colors.black} size={20} />}
+            icon={<Ionicons name="refresh" color={Colors.black} size={20} />}
             onPress={() => {
               resetRun();
-              Toast.info('Sequence Reset.');
+              setTimeout(() => Toast.info('Sequence Reset.'), 100);
             }}
           />
         </AppCard>
@@ -98,7 +102,7 @@ const TrackingScreen = () => {
         <AppCard style={styles.bottomCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Bike color={Colors.primary} size={28} />
+              <Ionicons name="bicycle" color={Colors.primary} size={28} />
             </View>
             <View style={styles.textStack}>
               <AppText variant="h2">Welcome to Patrol</AppText>
@@ -113,7 +117,7 @@ const TrackingScreen = () => {
           <AppButton 
             title={canStart ? "Start Run" : "Move to Start Zone"} 
             variant={canStart ? "primary" : "secondary"}
-            icon={<Play color={canStart ? Colors.black : Colors.textMain} size={20} />}
+            icon={<Ionicons name="play" color={canStart ? Colors.black : Colors.textMain} size={20} />}
             onPress={handleStartAttempt}
           />
         </AppCard>
@@ -126,7 +130,7 @@ const TrackingScreen = () => {
         <AppCard style={styles.bottomCard}>
            <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Check color={Colors.black} size={28} />
+              <Ionicons name="checkmark" color={Colors.black} size={28} />
             </View>
             <View style={styles.textStack}>
               <AppText variant="h2" color="primary">Final Step!</AppText>
@@ -139,7 +143,7 @@ const TrackingScreen = () => {
           <AppButton 
             title={canEnd ? "End Run" : "Move to End Zone"} 
             variant={canEnd ? "primary" : "secondary"} 
-            icon={<Check color={canEnd ? Colors.black : Colors.textMain} size={20} />}
+            icon={<Ionicons name="checkmark" color={canEnd ? Colors.black : Colors.textMain} size={20} />}
             onPress={handleEndAttempt}
           />
         </AppCard>
@@ -150,7 +154,7 @@ const TrackingScreen = () => {
       <AppCard style={styles.bottomCard}>
          <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Navigation color={Colors.primary} size={28} />
+              <Ionicons name="navigate" color={Colors.primary} size={28} />
             </View>
             <View style={styles.textStack}>
               <AppText variant="h2">Target: {activeNode.node.name}</AppText>
@@ -158,7 +162,7 @@ const TrackingScreen = () => {
             </View>
          </View>
          <View style={styles.instructionRow}>
-            <MapPin color={Colors.primary} size={20} />
+            <Ionicons name="location" color={Colors.primary} size={20} />
             <AppText color="primary" style={styles.metricsText}> Proceed to the highlighted zone.</AppText>
          </View>
       </AppCard>
@@ -190,7 +194,7 @@ const TrackingScreen = () => {
       <AppModal visible={modalVisible} onClose={() => setModalVisible(false)}>
         <View style={styles.modalContent}>
           <View style={styles.iconCircle}>
-            <AlertTriangle color={Colors.danger} size={32} />
+            <Ionicons name="warning" color={Colors.danger} size={32} />
           </View>
           <AppText variant="h1" align="center" style={styles.modalTitle}>Out of Bounds</AppText>
           <AppText align="center" color="textSecondary" style={styles.modalBody}>

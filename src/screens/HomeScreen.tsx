@@ -10,7 +10,7 @@ import { AppImage } from '@components/ui/AppImage';
 import { AppCard } from '@components/ui/AppCard';
 import { AppButton } from '@components/ui/AppButton';
 import { CustomContainer } from '@components/ui/CustomContainer';
-import { Target } from 'lucide-react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getWidth, getHeight, getFontSize } from '@theme/responsive';
 
 // We define our stack parameter list here (or in a separate types file)
@@ -60,7 +60,7 @@ const HomeScreen = () => {
             <AppButton 
               title="Start Mission" 
               variant="primary"
-              icon={<Target color={Colors.black} size={20} />}
+              icon={<Ionicons name="locate" color={Colors.black} size={20} />}
               onPress={() => navigation.navigate('Tracking')}
             />
           </View>
