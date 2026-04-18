@@ -1,97 +1,219 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🚴 WyxanTaskApp — Cyclist Route Tracker
 
-# Getting Started
+A React Native application for tracking cyclists through a series of defined checkpoints with geofenced areas. Built with TypeScript, Zustand, and react-native-maps.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 📋 Table of Contents
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- [Setup Instructions](#setup-instructions)
+- [Architecture & Approach](#architecture--approach)
+- [Edge Cases & Limitations](#edge-cases--limitations)
+- [Retrospective / Future Improvements](#retrospective--future-improvements)
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
+## 🛠️ Setup Instructions
+
+### Prerequisites
+
+- **Node.js** >= 22.11.0
+- **React Native CLI** environment set up ([Guide](https://reactnative.dev/docs/set-up-your-environment))
+- **Xcode** (for iOS) / **Android Studio** (for Android)
+- **CocoaPods** (for iOS dependencies)
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone <YOUR_NEW_REPO_URL>
+cd WyxanTaskApp
+
+# 2. Install dependencies
+npm install
+
+# 3. iOS only — install CocoaPods
+cd ios && bundle exec pod install && cd ..
+```
+
+### Google Maps API Key (Android)
+
+The app uses `react-native-maps`. On **iOS**, it defaults to Apple Maps (no key required). On **Android**, you need a Google Maps API key:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable **Maps SDK for Android**
+3. Create an API key
+4. Replace the placeholder in `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<meta-data
+  android:name="com.google.android.geo.API_KEY"
+  android:value="YOUR_ACTUAL_KEY_HERE" />
+```
+
+### Running the App
+
+```bash
+# Start Metro bundler
 npm start
 
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# Run on iOS
 npm run ios
 
-# OR using Yarn
-yarn ios
+# Run on Android
+npm run android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+### Running Tests
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+npx jest --coverage
+```
 
-## Step 3: Modify your app
+---
 
-Now that you have successfully run the app, let's make changes!
+## 🏗️ Architecture & Approach
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### Project Structure
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+```
+src/
+├── assets/          # Fonts, images, static resources
+├── components/
+│   ├── map/         # RouteMap — MapView with polygons, polylines, markers
+│   └── ui/          # Reusable UI primitives (AppText, AppButton, AppCard, etc.)
+├── hooks/           # useLocationTracker — GPS stream + geofencing engine
+├── mocks/           # Route data (mirrors the example JSON)
+├── screens/         # HomeScreen, TrackingScreen, SplashScreen
+├── store/           # Zustand state management (useRunStore)
+├── theme/           # Design tokens (colors, fonts, responsive scaling)
+└── utils/           # Polygon intersection logic (Turf.js), permissions
+```
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### State Management — Zustand
 
-## Congratulations! :tada:
+I chose **Zustand** for its minimal boilerplate and direct store access (important for unit testing). The store manages:
 
-You've successfully run and modified your React Native App. :partying_face:
+- `runState`: `'IDLE' | 'ACTIVE' | 'COMPLETED'` — the run lifecycle
+- `sequence`: A pre-computed linear array of `SequenceNode[]` representing the full route order
+- `activeSequenceIndex`: Pointer to the currently active target in the sequence
+- `currentLocation`:  Latest GPS coordinate
+- `isSimulationMode`: Toggles between real GPS and DevTeleporter mock positioning
 
-### Now what?
+### Sequence Generation Algorithm
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+The core challenge is handling circular routes with multiple hits. My approach:
 
-# Troubleshooting
+1. **Pre-compute the full linear sequence** at store initialization via `generateSequence()`
+2. Sort CPs by their `order` property
+3. Iterate `maxHits` cycles, adding each CP that still needs visits
+4. This naturally produces: `SP → CP1 → CP2 → CP1 → CP2 → EP`
+5. The non-consecutive hit rule is inherently satisfied because we cycle through ALL CPs before repeating any
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+### Geofencing — Turf.js
 
-# Learn More
+Rather than relying on native geofencing APIs (which are inconsistent across platforms), I use:
 
-To learn more about React Native, take a look at the following resources:
+- **`@turf/boolean-point-in-polygon`** for point-in-polygon checks
+- **`@turf/helpers`** for GeoJSON coordinate construction
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This gives deterministic, cross-platform polygon intersection logic and is easily unit-testable.
+
+### Location Tracking
+
+- **`react-native-geolocation-service`** provides the GPS stream via `watchPosition()`
+- High accuracy mode with 1-meter distance filter and 1-second interval
+- The `useGeofencingEngine` hook runs on every location update:
+  - If the user enters the active CP's polygon → auto-complete + vibration feedback
+  - SP and EP require manual button confirmation (per requirements)
+
+### Map Visualization
+
+- **Polygons**: Green fill for active target, gray for future, translucent for completed
+- **Polyline (background)**: Dashed line showing the full route path via polygon centroids
+- **Polyline (leading)**: Solid green line from user's current position to the active target
+- **Custom marker**: Cyclist emoji marker with a glowing border
+
+### DevTeleporter (Testing Tool)
+
+A developer tool accessible via the bug icon on the tracking screen. It allows:
+- Toggling between real GPS and simulated positions
+- Teleporting to any checkpoint's centroid
+- Jumping to an "outside bounds" location for testing error flows
+
+---
+
+## ⚠️ Edge Cases & Limitations
+
+### Known Edge Cases
+
+| Edge Case | Current Behavior | Risk Level |
+|-----------|-----------------|------------|
+| **GPS noise / jitter** | If user's position rapidly oscillates across a polygon boundary, multiple hits could register for the same checkpoint in quick succession | Medium |
+| **Rapid polygon traversal** | Very fast movement through a small polygon might miss location updates entirely (between 1-second intervals) | Medium |
+| **Polygon boundary precision** | Turf.js treats boundary points as outside the polygon (standard GeoJSON behavior) — user must be strictly *inside* | Low |
+| **Background location** | App only tracks location while in foreground (`whenInUse` permission). Backgrounded app stops tracking. | Low (acceptable for task scope) |
+| **Network disconnection** | Map tiles may not load without internet. GPS tracking continues to work offline. | Low |
+| **Multiple overlapping polygons** | If SP and EP share the same polygon (as in the test data), the geofencing engine only checks the active target — no conflict | None |
+
+### Platform Differences
+
+- **iOS**: Uses Apple Maps (built-in, no API key)
+- **Android**: Uses Google Maps (requires API key in AndroidManifest.xml)
+- Map appearances differ between platforms but functionality is identical.
+
+---
+
+## 🔮 Retrospective / Future Improvements
+
+If I had an extra week, here's what I would implement:
+
+### Performance & Reliability
+- **Debounced geofencing**: Add a minimum dwell time (e.g., 2 seconds inside a polygon) before registering a hit, to prevent GPS jitter false positives
+- **Background location tracking**: Upgrade to `ACCESS_BACKGROUND_LOCATION` (Android) and `always` authorization (iOS) so the run persists when the app is backgrounded
+- **Persistent run state**: Use Zustand's `persist` middleware with AsyncStorage to survive app kills mid-run
+- **Optimistic location buffering**: Queue location updates and process them in batches to prevent re-renders on every GPS tick
+
+### UX Enhancements
+- **Animated route progression**: Smooth polyline animation as checkpoints are completed (Lottie or Reanimated)
+- **Distance & ETA display**: Show meters remaining to the next checkpoint using Haversine formula
+- **Route overview camera**: Auto-fit the map camera to show the full route or zoom to the active segment
+- **Completion statistics**: Time elapsed, distance covered, average speed after run completion
+- **Dark/Light map themes**: Sync the map style with system appearance
+
+### Architecture
+- **API-driven routes**: Fetch route configurations from a backend instead of hardcoded mock data
+- **Offline-first**: Cache route data and map tiles for areas with poor connectivity
+- **Modular geofencing service**: Extract the geofencing engine into a standalone service class (decoupled from React hooks) for better testability
+- **E2E testing**: Add Detox tests to automate the full run flow on real devices
+- **CI/CD pipeline**: GitHub Actions for lint, test, and APK build on every push
+
+### Production Readiness
+- **Error boundaries**: Wrap screens in React error boundaries with crash reporting (Sentry/Crashlytics)
+- **Analytics**: Track run completions, abandonment rates, and common failure points
+- **Accessibility**: Screen reader support, dynamic text sizing, high contrast colors
+- **Localization**: i18n support for multiple languages
+
+---
+
+## 📦 Tech Stack
+
+| Technology | Purpose |
+|-----------|---------|
+| React Native 0.85.1 | Cross-platform mobile framework |
+| TypeScript | Type safety |
+| Zustand | Lightweight state management |
+| react-native-maps | MapView, Polygons, Polylines, Markers |
+| react-native-geolocation-service | GPS location streaming |
+| @turf/boolean-point-in-polygon | Geofencing — point-in-polygon checks |
+| @turf/helpers | GeoJSON helpers |
+| lucide-react-native | Icon library |
+| toastify-react-native | Toast notifications |
+| react-native-safe-area-context | Safe area insets |
+| react-navigation | Screen navigation |
+
+---
+
+## 📄 License
+
+This project was created as a technical assessment submission.

@@ -1,0 +1,37 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Poppins-Bold.ttf",
+      "sha1": "875cf0cecd647bcf22e79d633d868c1b1ec98dfa"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Medium.ttf",
+      "sha1": "283f21b44efbdbf276ba802be2d949a36bbc4233"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-Regular.ttf",
+      "sha1": "fdd3002e7d814ee47c1c1b8487c72c6bbb3a2d00"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-SemiBold.ttf",
+      "sha1": "8a4ace9392d06bcb7f8ea2f5169b07e4c383a90d"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Bold.ttf",
+      "sha1": "783de2321d7e6d21f880a10437a9f2c7b45ed198"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Regular.ttf",
+      "sha1": "3bff51436aa7eb995d84cfc592cc63e1316bb400"
+    },
+    {
+      "path": "src/assets/images/app_logo.png",
+      "sha1": "923ae58ccdbf1c33d97a32609a8a87fe463ff913"
+    },
+    {
+      "path": "src/assets/images/bicycle_marker.png",
+      "sha1": "a82a50b41925b5f8efad54693fd8c1491360abbf"
+    }
+  ]
+}

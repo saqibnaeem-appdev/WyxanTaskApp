@@ -1,0 +1,103 @@
+import { useEffect } from 'react';
+import Geolocation from 'react-native-geolocation-service';
+import { useRunStore } from '@store/useRunStore';
+import { requestLocationPermission } from '@utils/permissions';
+import { isUserInPolygon } from '@utils/geoUtils';
+import { Vibration } from 'react-native';
+import { Toast } from 'toastify-react-native';
+
+export const useLocationTracker = () => {
+  const setLocation = useRunStore(s => s.setLocation);
+  const isSimulationMode = useRunStore(s => s.isSimulationMode);
+
+  useEffect(() => {
+    // Skip natural GPS updates if developer is simulating them manually
+    if (isSimulationMode) return;
+
+    let watchId: number | null = null;
+
+    const startWatching = async () => {
+      const hasPermission = await requestLocationPermission();
+      if (!hasPermission) {
+        console.warn('Location permission denied');
+        return;
+      }
+
+      // Get initial position first
+      Geolocation.getCurrentPosition(
+        position => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        error => {
+          console.warn('Error getting initial location', error);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+      );
+
+      // Start watching stream
+      watchId = Geolocation.watchPosition(
+        position => {
+          setLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        error => {
+          console.error(error);
+        },
+        {
+          enableHighAccuracy: true,
+          distanceFilter: 1, // update every 1 meter
+          interval: 1000, // update every 1000ms
+          fastestInterval: 500,
+        },
+      );
+    };
+
+    startWatching();
+
+    return () => {
+      if (watchId !== null) {
+        Geolocation.clearWatch(watchId);
+      }
+    };
+  }, [setLocation, isSimulationMode]);
+};
+
+// Internal logic for Geofencing verification bounds
+export const useGeofencingEngine = () => {
+  const currentLocation = useRunStore(s => s.currentLocation);
+  const sequence = useRunStore(s => s.sequence);
+  const activeSequenceIndex = useRunStore(s => s.activeSequenceIndex);
+  const advanceCheckpoint = useRunStore(s => s.advanceCheckpoint);
+  const runState = useRunStore(s => s.runState);
+
+  useEffect(() => {
+    if (!currentLocation || runState !== 'ACTIVE') return;
+
+    // Check if user is in polygon of the active target (for CP auto-complete)
+    const activeTarget = sequence[activeSequenceIndex];
+
+    // Only auto-complete for Checkpoints (SP and EP require manual button press)
+    if (activeTarget.nodeType === 'CP') {
+      const isInZone = isUserInPolygon(
+        currentLocation,
+        activeTarget.node.polygon,
+      );
+      if (isInZone) {
+        Vibration.vibrate(400); // Quick haptic feedback
+        Toast.success(`Hit Checkpoint: ${activeTarget.node.name}`);
+        advanceCheckpoint();
+      }
+    }
+  }, [
+    currentLocation,
+    activeSequenceIndex,
+    sequence,
+    runState,
+    advanceCheckpoint,
+  ]);
+};

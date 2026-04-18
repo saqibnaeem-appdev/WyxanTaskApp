@@ -5,40 +5,70 @@
  * @format
  */
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import React from 'react';
+import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-function App() {
+import HomeScreen, { RootStackParamList } from './src/screens/HomeScreen';
+import TrackingScreen from './src/screens/TrackingScreen';
+import SplashScreen from './src/screens/SplashScreen';
+import { Colors } from './src/theme/colors';
+import ToastManager from 'toastify-react-native';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const [isSplashVisible, setIsSplashVisible] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isSplashVisible) {
+    return <SplashScreen />;
+  }
 
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
+    <SafeAreaProvider style={styles.container}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor="transparent"
+        translucent={true}
       />
-    </View>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false, // We use custom SafeArea layout for everything
+            contentStyle: { backgroundColor: Colors.background }
+          }}
+        >
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Tracking" component={TrackingScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+
+      {/* Global Toast Manager */}
+      <ToastManager 
+        theme="dark" 
+        width={350} 
+        position="top"
+        animationStyle="zoomInOut"
+      />
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background
   },
 });
 
