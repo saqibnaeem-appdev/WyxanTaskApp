@@ -15,7 +15,7 @@
       <!-- GOOGLE MAPS API KEY CONFIGURATION -->
       <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="***REMOVED***" />
+        android:value="[GCP_API_KEY]" />
 
       <activity
         android:name=".MainActivity"
