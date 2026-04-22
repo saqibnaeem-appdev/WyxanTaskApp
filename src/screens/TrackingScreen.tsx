@@ -93,11 +93,7 @@ const TrackingScreen = () => {
         <AppCard style={styles.bottomCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Ionicons
-                name="checkmark"
-                color={Colors.surfaceHighlight}
-                size={28}
-              />
+              <Ionicons name="checkmark" color={Colors.primary} size={28} />
             </View>
             <View style={styles.textStack}>
               <AppText variant="h2" color="primary">
@@ -159,7 +155,7 @@ const TrackingScreen = () => {
         <AppCard style={styles.bottomCard}>
           <View style={styles.cardHeaderRow}>
             <View style={styles.iconBox}>
-              <Ionicons name="checkmark" color={Colors.black} size={28} />
+              <Ionicons name="checkmark" color={Colors.primary} size={28} />
             </View>
             <View style={styles.textStack}>
               <AppText variant="h2" color="primary">

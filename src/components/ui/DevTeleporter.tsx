@@ -45,9 +45,8 @@ const DevTeleporter = () => {
     setIsOpen(false);
   };
 
-  const getStatusIcon = (nodeId: string) => {
-    const activeNode = sequence[activeSequenceIndex];
-    if (activeNode && activeNode.node.id === nodeId) {
+  const getStatusIcon = (index: number) => {
+    if (index === activeSequenceIndex) {
       return (
         <Ionicons
           name="radio-button-on"
@@ -58,10 +57,7 @@ const DevTeleporter = () => {
       );
     }
 
-    const hasRemaining = sequence
-      .slice(activeSequenceIndex)
-      .some(seq => seq.node.id === nodeId);
-    if (!hasRemaining) {
+    if (index < activeSequenceIndex) {
       return (
         <Ionicons
           name="checkmark-circle"
@@ -123,47 +119,24 @@ const DevTeleporter = () => {
               Locations
             </AppText>
 
-            <TouchableOpacity
-              style={styles.locationBtn}
-              onPress={() => handleTeleport('sp-1')}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {getStatusIcon('sp-1')}
-                <AppText variant="body1">1. Start Point (Base)</AppText>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.locationBtn}
-              onPress={() => handleTeleport('cp-1')}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {getStatusIcon('cp-1')}
-                <AppText variant="body1">2. Checkpoint 1 (Front Gate)</AppText>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.locationBtn}
-              onPress={() => handleTeleport('cp-2')}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {getStatusIcon('cp-2')}
-                <AppText variant="body1">
-                  3. Checkpoint 2 (Loading Bay)
-                </AppText>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.locationBtn}
-              onPress={() => handleTeleport('ep-1')}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {getStatusIcon('ep-1')}
-                <AppText variant="body1">4. End Point (Base)</AppText>
-              </View>
-            </TouchableOpacity>
+            {sequence.map((seq, index) => (
+              <TouchableOpacity
+                key={`teleport-${index}`}
+                style={styles.locationBtn}
+                onPress={() => {
+                  if (!isSimulationMode) setSimulationMode(true);
+                  setLocation(getPolygonCentroid(seq.node.polygon));
+                  setIsOpen(false);
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {getStatusIcon(index)}
+                  <AppText variant="body1">
+                    {index + 1}. {seq.node.name}
+                  </AppText>
+                </View>
+              </TouchableOpacity>
+            ))}
 
             <TouchableOpacity
               style={[styles.locationBtn, styles.locationBtnRed]}

@@ -14,8 +14,8 @@ A complete React Native application designed specifically to fulfill the **Cycli
 
 ## 🔗 Links
 
-- **APK Download**: [Download Final APK](https://drive.google.com/file/d/1VkESxbFoUsa_LceLmC9QGChdRYmNe3ug/view?usp=sharing)
-- **Demo Video**: [Watch App Demo](https://drive.google.com/file/d/139oZ3CZ_-nM7XoLcKvoLQYTzF045xAQ0/view?usp=sharing)
+- **APK Download**: [Download Final APK](https://drive.google.com/file/d/1pSy8bLxkQ3nN_ERfkd5Evq-rn4Dr6KbI/view?usp=sharing)
+- **Demo Video**: [Watch App Demo](https://drive.google.com/file/d/1AE0JM515uK6JCzw86adnoFv4YaLz2KVO/view?usp=sharing)
 - **GitHub Repository**: [saqibnaeem-appdev/WyxanTaskApp](https://github.com/saqibnaeem-appdev/WyxanTaskApp.git)
 
 ---
@@ -210,6 +210,7 @@ If I had an extra week, here's what I would implement:
 | TypeScript | Type safety |
 | Zustand | Lightweight state management |
 | react-native-maps | MapView, Polygons, Polylines, Markers |
+| react-native-maps-directions | Road-snapped path generation and directions |
 | react-native-geolocation-service | GPS location streaming |
 | @turf/boolean-point-in-polygon | Geofencing — point-in-polygon checks |
 | @turf/helpers | GeoJSON helpers |

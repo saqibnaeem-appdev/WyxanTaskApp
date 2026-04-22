@@ -61,9 +61,8 @@ export const useRunStore = create<RunStoreState>((set, get) => ({
 
   startRun: () => {
     const { runState, activeSequenceIndex } = get();
-    if (runState === 'IDLE') {
-      set({ runState: 'ACTIVE', activeSequenceIndex: activeSequenceIndex + 1 });
-    }
+    if (runState !== 'IDLE') return;
+    set({ runState: 'ACTIVE', activeSequenceIndex: activeSequenceIndex + 1 });
   },
 
   advanceCheckpoint: () => {
